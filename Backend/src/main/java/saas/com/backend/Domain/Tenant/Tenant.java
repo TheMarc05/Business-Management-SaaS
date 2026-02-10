@@ -1,19 +1,33 @@
 package saas.com.backend.Domain.Tenant;
 
+import lombok.Getter;
 import saas.com.backend.Domain.Shared.Email;
 import saas.com.backend.Domain.Shared.PhoneNumber;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+//tenant aggregate root
+//reprezinta business-ul
+//este root-ul multi-tenancy - nu are tenantId (este root-ul)
+//toate celelalte entitati au tenantId care se refera la acest Tenant
+//acesta este domain entity - nu contine JPA annotations, JPA mapping-ul se face in infrastructure layer prin adapter pattern
 public class Tenant {
+    @Getter
     private UUID id;
+    @Getter
     private String name;
+    @Getter
     private Email email;
+    @Getter
     private PhoneNumber phoneNumber;
+    @Getter
     private String address;
+    @Getter
     private SubscriptionPlan subscriptionPlan;
+    @Getter
     private LocalDateTime createdAt;
+    @Getter
     private boolean isActive;
 
     //crearea unui nou tenant
@@ -56,5 +70,50 @@ public class Tenant {
         }
 
         return trimmed;
+    }
+
+    public void updateContactInfo(Email email, PhoneNumber phoneNumber){
+        if(email == null){
+            throw new IllegalArgumentException("Email cannot be null");
+        }
+        if(phoneNumber == null){
+            throw new IllegalArgumentException("PhoneNumber cannot be null");
+        }
+
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void updateAddress(String address){
+        this.address = address;
+    }
+
+    public void upgradePlan(SubscriptionPlan newPlan){
+        if(newPlan == null){
+            throw new IllegalArgumentException("Subscription Plan cannot be null");
+        }
+
+        //momentan nu se poate trece la un plan mai mic, trebuie un proces separat
+        this.subscriptionPlan = newPlan;
+    }
+
+    //dezactiveaza tenant-ul, nu mai poate accesa sistemul daca este dezactivat
+    public void deactivate(){
+        this.isActive = false;
+    }
+
+    //activeaza tenant-ul
+    public void activate(){
+        this.isActive = true;
+    }
+
+    //verifica daca tenant-ul are un plan specific
+    public boolean hasPlan(SubscriptionPlan plan){
+        return this.subscriptionPlan == plan;
+    }
+
+    //verifica daca are plan premium
+    public boolean isPremium(){
+        return subscriptionPlan == SubscriptionPlan.PREMIUM;
     }
 }
