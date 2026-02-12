@@ -22,6 +22,7 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 
+    //constructor pt a crea User nou
     public User(UUID tenantId, Email email, String passwordHash, String firstName, String lastName, UserRole role) {
         this.id = UUID.randomUUID();
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId cannot be null");
@@ -35,6 +36,19 @@ public class User {
         this.lastLoginAt = lastLoginAt;
     }
 
+    //constructor pt incarcarea din baza de date
+    public User(UUID id, UUID tenantId, Email email, String passwordHash,String firstName, String lastName, UserRole role, boolean isActive, LocalDateTime createdAt, LocalDateTime lastLoginAt) {
+        this.id = Objects.requireNonNull(id, "id cannot be null");
+        this.tenantId = Objects.requireNonNull(tenantId, "tenantId cannot be null");
+        this.email = Objects.requireNonNull(email, "email cannot be null");
+        this.passwordHash = validatePasswordHash(passwordHash);
+        this.firstName = validateName(firstName, "firstName");
+        this.lastName = validateName(lastName, "lastName");
+        this.role = Objects.requireNonNull(role, "role cannot be null");
+        this.isActive = isActive;
+        this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
+        this.lastLoginAt = lastLoginAt;
+    }
     private String validatePasswordHash(String passwordHash) {
         if(passwordHash == null || passwordHash.trim().isEmpty()){
             throw new IllegalArgumentException("passwordHash cannot be null or empty");
